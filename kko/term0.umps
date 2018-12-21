@@ -1,0 +1,125 @@
+Programming Paradigms for
+Dummies:  What Every
+Programmer Should Know
+Peter Van Roy
+This  chapter  gives  an  introduction  to  all  the  main  programming  paradigms,  their  un-
+derlying concepts,  and the relationships between them.  We give a broad view to help
+programmers choose the right concepts they need to solve the problems at hand.  We
+give a taxonomy of almost 30 useful programming paradigms and how they are related.
+Most of them differ only in one or a few concepts, but this can make a world of difference
+in  programming.   We  explain  briefly  how  programming  paradigms  influence  language
+design,  and  we  show  two  sweet  spots:  dual-paradigm  languages  and  a  definitive  lan-
+guage.  We introduce the main concepts of programming languages:  records,  closures,
+independence (concurrency), and named state.  We explain the main principles of data
+abstraction and how it lets us organize large programs.  Finally, we conclude by focus-
+ing  on  concurrency,  which  is  widely  considered  the  hardest  concept  to  program  with.
+We present four little-known but important paradigms that greatly simplify concurrent
+programming with respect to mainstream languages:  declarative concurrency (both ea-
+ger and lazy), functional reactive programming, discrete synchronous programming, and
+constraint programming.  These paradigms have no race conditions and can be used in
+cases where no other paradigm works.  We explain why for multi-core processors and we
+give several examples from computer music, which often uses these paradigms.
+More is not better (or worse) than less, just different.
+– The paradigm paradox.
+1    Introduction
+Programming is a rich discipline and practical programming languages are usually quite
+complicated.   Fortunately,  the  important  ideas  of  programming  languages  are  simple.
+This chapter is intended to give readers with some programming experience a running
+start for these ideas.  Although we do not give formal definitions, we give precise intu-
+itions and good references so that interested readers can quickly get started using the
+concepts and languages that implement them.  We mention
+all
+important paradigms but
+we  favor  some  little-known  paradigms  that
+deserve  to  be  more  widely  used.   We  have
+deliberately  left  out  detailed  explanations  of  some  of  the  more  well-known  paradigms
+9
+Peter Van Roy
+(such as functional and object-oriented programming),  since they already have a huge
+literature.
+Solving  a  programming  problem  requires  choosing  the  right  concepts.   All  but  the
+smallest toy problems require different sets of concepts for different parts.  This is why
+programming languages should support many paradigms.  A
+programming paradigm
+is an
+approach to programming a computer based on a mathematical theory or a coherent set of
+principles.  Each paradigm supports a set of concepts that makes it the best for a certain
+kind of problem.  For example, object-oriented programming is best for problems with a
+large number of related data abstractions organized in a hierarchy.  Logic programming
+is best for transforming or navigating complex symbolic structures according to logical
+rules.   Discrete  synchronous  programming  is  best  for  reactive  problems,  i.e.,  problems
+that consist of reactions to sequences of external events.  Languages that support these
+three paradigms are respectively Java, Prolog, and Esterel.
+Popular mainstream languages such as Java or C++ support just one or two separate
+paradigms.   This  is  unfortunate,  since  different  programming  problems  need  different
+programming concepts to solve them cleanly, and those one or two paradigms often do
+not  contain  the  right  concepts.   A  language  should  ideally  support  many  concepts  in
+a  well-factored  way,  so  that  the  programmer  can  choose  the  right  concepts  whenever
+they are needed without being encumbered by the others.  This style of programming
+is  sometimes  called
+multiparadigm
+programming,  implying  that  it  is  something  exotic
+and out of the 
+ ordinary.  On the contrary, in our experience it is clear that it should be
+the normal way of programming.  Mainstream languages are far from supporting this.
+Nevertheless, understanding the right concepts can help improve programming style even
+in languages that do not directly support them, just as object-oriented programming is
+possible in C with the right programmer attitude.
+This chapter is partly based on the book [50], familiarly known as CTM, which gives
+much more information on many of the paradigms and concepts presented here.  But this
+chapter goes further and presents ideas and paradigms not covered in CTM. The code
+examples  in  this  chapter  are  written  in  the  Oz  language,  which  is  also  used  in  CTM.
+Oz has the advantage that it supports multiple paradigms well, so that we do not have
+to introduce more than one notation.  The examples should be fairly self-explanatory;
+whenever anything out of the ordinary occurs we explain it in the text.
+Contents of this chapter
+Languages,   paradigms,   and  concepts
+Section  2  explains  what  programming
+paradigms are and gives a taxonomy of the main paradigms.  If your experience is limited
+to one or just a few programming languages or paradigms (e.g., object-oriented program-
+ming in Java), then you will find a much broader viewpoint here.  We also explain how we
+organize the paradigms to show how they are related.  We find that it is certainly not true
+that there is one “best” paradigm, and a fortiori this is not object-oriented programming!
+On the contrary, there are many useful paradigms.  Each paradigm has its place:  each
+has problems for which it gives the best solution (simplest, easiest to reason about, or
+most  efficient).   Since  most  programs  have  to  solve  more  than  one  problem,  it  follows
+that they are best written in different paradigms.
+10
+Programming Paradigms for Dummies
+Designing a language and its programs
+Section 3 explains how to design languages
+to support several paradigms.  A good language for large programs must support several
+paradigms.   One  approach  that  works  surprisingly  well  is  the
+dual-paradigm
+language:
+a language that supports one paradigm for programming in the small and another for
+programming in the large. Another approach is the idea of designing a
+definitive
+language.
+We present an example design that has proved itself in four different areas.  The design
+has  a  layered  structure  with  one  paradigm  in  each  layer.   Each  paradigm  is  carefully
+chosen to solve the successive problems that appear.  We explain why this design is good
+for building large-scale software.
+Programming concepts
+Section 4 explains the four most important concepts in pro-
+gramming:  records,  lexically scoped closures,  independence (concurrency),  and named
+state.   Each  of  these  concepts  gives  the  programmer  an  essential  expressiveness  that
+cannot be obtained in any other way.  These concepts are often used in programming
+paradigms.
+Data abstraction
+Section 5 explains how to define new forms of data with their oper-
+ations in a program.  We show the four kinds of data abstractions:  objects and abstract
+data types are the two most popular, but there exist two others, declarative objects and
+stateful abstract data types.  Data abstraction allows to organize programs into under-
+standable pieces, which is important for clarity, maintenance, and scalability.  It allows
+to increase a language’s expressiveness by defining new languages on top of the existing
+language.  This makes data abstraction an important part of most paradigms.
+Deterministic concurrent programming
+Section 6 presents deterministic concur-
+rent programming, a concurrent model that trades expressiveness for ease of program-
+ming.   It  is
+much
+easier  to  program  in  than  the  usual  concurrent  paradigms,  namely
+shared-state concurrency and message-passing concurrency.  It is also by far the easiest
+way to write parallel programs, i.e., programs that run on multiple processors such as
+multi-core processors.  We present three important 
